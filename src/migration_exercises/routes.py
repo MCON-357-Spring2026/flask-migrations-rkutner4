@@ -58,11 +58,25 @@ def create_assignment():
 
     title = data.get("title")
     max_score = data.get("max_score")
+    due_date_str = data.get("due_date")
 
     if not title or max_score is None:
         return jsonify({"error": "title and max_score are required"}), 400
 
-    assignment = Assignment(title=title, max_score=max_score)
+    due_date = None
+    if due_date_str:
+        try:
+            from datetime import date
+            due_date = date.fromisoformat(due_date_str)
+        except ValueError:
+            return jsonify({"error": "invalid due_date format"}), 400
+
+    assignment = Assignment(
+        title=title,
+        max_score=max_score,
+        due_date=due_date
+    )
+
     db.session.add(assignment)
     db.session.commit()
     return jsonify(assignment.to_dict()), 201
@@ -81,6 +95,7 @@ def create_grade():
     score = data.get("score")
     student_id = data.get("student_id")
     assignment_id = data.get("assignment_id")
+    comment = data.get("comment")
 
     if score is None or student_id is None or assignment_id is None:
         return jsonify({"error": "score, student_id, and assignment_id are required"}), 400
@@ -93,7 +108,13 @@ def create_grade():
     if assignment is None:
         return jsonify({"error": "assignment not found"}), 404
 
-    grade = Grade(score=score, student_id=student_id, assignment_id=assignment_id)
+    grade = Grade(
+        score=score,
+        student_id=student_id,
+        assignment_id=assignment_id,
+        comment=comment
+    )
+
     db.session.add(grade)
     db.session.commit()
     return jsonify(grade.to_dict()), 201
