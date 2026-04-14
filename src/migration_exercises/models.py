@@ -29,6 +29,7 @@ class Assignment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
     max_score = db.Column(db.Integer, nullable=False)
+    due_date = db.Column(db.Date, nullable=True)
 
     grades = db.relationship(
         "Grade",
@@ -41,6 +42,7 @@ class Assignment(db.Model):
             "id": self.id,
             "title": self.title,
             "max_score": self.max_score,
+            "due_date": self.due_date.isoformat() if self.due_date else None,
         }
 
 
@@ -49,6 +51,7 @@ class Grade(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.String(200), nullable=True)
 
     student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=False)
     assignment_id = db.Column(db.Integer, db.ForeignKey("assignments.id"), nullable=False)
@@ -62,4 +65,5 @@ class Grade(db.Model):
             "score": self.score,
             "student_id": self.student_id,
             "assignment_id": self.assignment_id,
+            "comment": self.comment,
         }
